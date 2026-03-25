@@ -1,30 +1,166 @@
 <template>
-    <div class="slds-size_1-of-3 slds-align_absolute-center slds-m-top_medium">
-     <lightning-carousel>
-        <template for:each={vehicles} for:item="item">
-            <lightning-carousel-image
-                key={item.Id}
-                src={item.Vehicle_Image_URL__c}
-                header={item.Name}
-                description={item.Make__c}
-                alternative-text={item.Name}
-                data-id={item.Id}
-                data-name={item.Name}
-                data-make={item.Make__c}
-                data-engine={item.Engine_CC__c}
-                data-price={item.Price__c}
-                onclick={handleSelect}>
-            </lightning-carousel-image>
-        </template>
-    </lightning-carousel> 
+   <div class="slds-grid slds-grid_align-center slds-m-top_medium">   
+    <div class="slds-box slds-size_1-of-1 slds-medium-size_2-of-3 slds-large-size_2-of-3">        
+        <lightning-carousel>
+            <template for:each={vehicles} for:item="item">
+                <lightning-carousel-image
+                    key={item.Id}
+                    src={item.Vehicle_Image_URL__c}
+                    header={item.Name}
+                    description={item.Make__c}
+                    alternative-text={item.Name}
+                    data-id={item.Id}
+                    data-name={item.Name}
+                    data-make={item.Make__c}
+                    data-engine={item.Engine_CC__c}
+                    data-price={item.Price__c}
+                    onclick={handleSelect}>
+                </lightning-carousel-image>
+            </template>
+        </lightning-carousel>
     </div>
+</div>
      <template if:true={showForm}>
         <lightning-input label="Product Name" value={productName} disabled></lightning-input>
         <lightning-input label="Brand (Make)" value={make} disabled></lightning-input>
         <lightning-input label="Engine (CC)" value={engine} disabled></lightning-input>
         <lightning-input label="Price" value={price} disabled></lightning-input>
-        <lightning-input label="Loan Amount" type="number" onchange={handleLoan}></lightning-input>
-        <lightning-input label="Tenure" type="number" onchange={handleTenure}></lightning-input>
-        <lightning-button label="Submit" onclick={handleSubmit}></lightning-button>
+        <lightning-input label="Loan Amount" type="number" onchange={handleLoan} required></lightning-input>
+        <lightning-input label="Tenure" type="number" onchange={handleTenure} required></lightning-input>
+        <div class="slds-m-top_medium slds-align_absolute-center">
+            <lightning-button 
+                label="Next" 
+                variant="brand" 
+                onclick={handleNext}>
+            </lightning-button>
+        </div>
+    </template>
+
+    <template if:true={showPopup}>
+        <div class="popup">
+            <div class="popup-content">
+                Congratulations! You are eligible for Preapproval
+            </div>
+        </div>
+    </template>
+    <template if:true={showCustomerForm}>
+        <lightning-card title="Customer Details">
+
+            <div class="slds-p-around_medium">
+
+                <lightning-input-name
+                    label="Full Name"
+                    first-name-label="First Name"
+                    last-name-label="Last Name"
+                    options={salutationOptions}
+                    required></lightning-input-name>
+            
+                <lightning-input label="Father Name" required></lightning-input>
+
+                <lightning-input type="date" label="Date of Birth" onchange={handleDOBChange} required></lightning-input>
+
+                <lightning-input 
+                    type="tel" 
+                    label="Mobile Number" 
+                    pattern="[0-9]{10}"
+                    message-when-pattern-mismatch="Enter a valid 10-digit mobile number"
+                    maxlength="10"
+                    onchange={handleMobileChange}
+                    required>
+                </lightning-input>
+
+                <lightning-input type="email" label="Email" required></lightning-input>
+
+                <lightning-input-address
+                    address-label="Address"
+                    street-label="Street"
+                    city-label="City"
+                    province-label="District"
+                    country-label="Country"
+                    postal-code-label="PostalCode"
+                    required
+                    field-level-help="Please enter your complete residential address including street, city, state, and postal code for loan processing." >
+                </lightning-input-address>
+            </div>
+                <lightning-button 
+                    variant="brand" 
+                    label="Next"
+                    onclick={handleNextButton}>
+                </lightning-button>
+            
+
+        </lightning-card>
+    </template>
+    <template if:true={showKYCForm}>
+        <lightning-card title="KYC Details">
+
+            <div class="slds-p-around_medium">
+                <lightning-input 
+                    label="Aadhaar Number"
+                    type="text"
+                    pattern="[0-9]{12}"
+                    maxlength="12"
+                    message-when-pattern-mismatch="Aadhaar must be 12 digits"
+                    onchange={handleAadhaarChange}
+                    required>
+                </lightning-input>
+
+                <lightning-input 
+                    label="PAN Number"
+                    type="text"
+                    pattern="[A-Z]{5}[0-9]{4}[A-Z]{1}"
+                    message-when-pattern-mismatch="Enter valid PAN (e.g., ABCDE1234F)"
+                    onchange={handlePanChange}
+                    required>
+                </lightning-input>
+
+                <lightning-combobox
+                    name="employmentType"
+                    label="Employment Type"
+                    value={employmentType}
+                    placeholder="Select Employment Type"
+                    options={employmentOptions}
+                    onchange={handleEmploymentChange}>
+                </lightning-combobox>
+
+                <lightning-input 
+                    type="number"
+                    label="Salary"
+                    onchange={handleSalaryChange}
+                    required>
+                </lightning-input>
+
+                <template if:true={isSelfEmployed}>
+
+                    <lightning-input 
+                        label="GST Number"
+                        onchange={handleGstChange}
+                        required>
+                    </lightning-input>
+                    <lightning-input-address
+                    address-label=" CompanyAddress"
+                    street-label="Street"
+                    city-label="City"
+                    province-label="District"
+                    country-label="Country"
+                    postal-code-label="PostalCode"
+                    onchange={handleCompanyAddressChange}
+                    required
+                    field-level-help="Please enter your complete company address including street, city, state, and postal code for loan processing." >
+                </lightning-input-address>
+
+                </template>
+
+            </div>
+
+            <div class="slds-m-top_medium slds-align_absolute-center">
+                <lightning-button 
+                    variant="brand" 
+                    label="Submit"
+                    onclick={handleSubmit}>
+                </lightning-button>
+            </div>
+
+        </lightning-card>
     </template>
 </template>
