@@ -1,0 +1,30 @@
+<template>
+    <div class="slds-size_1-of-3 slds-align_absolute-center slds-m-top_medium">
+     <lightning-carousel>
+        <template for:each={vehicles} for:item="item">
+            <lightning-carousel-image
+                key={item.Id}
+                src={item.Vehicle_Image_URL__c}
+                header={item.Name}
+                description={item.Make__c}
+                alternative-text={item.Name}
+                data-id={item.Id}
+                data-name={item.Name}
+                data-make={item.Make__c}
+                data-engine={item.Engine_CC__c}
+                data-price={item.Price__c}
+                onclick={handleSelect}>
+            </lightning-carousel-image>
+        </template>
+    </lightning-carousel> 
+    </div>
+     <template if:true={showForm}>
+        <lightning-input label="Product Name" value={productName} disabled></lightning-input>
+        <lightning-input label="Brand (Make)" value={make} disabled></lightning-input>
+        <lightning-input label="Engine (CC)" value={engine} disabled></lightning-input>
+        <lightning-input label="Price" value={price} disabled></lightning-input>
+        <lightning-input label="Loan Amount" type="number" onchange={handleLoan}></lightning-input>
+        <lightning-input label="Tenure" type="number" onchange={handleTenure}></lightning-input>
+        <lightning-button label="Submit" onclick={handleSubmit}></lightning-button>
+    </template>
+</template>
