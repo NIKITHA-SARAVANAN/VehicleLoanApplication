@@ -1,6 +1,7 @@
 import { LightningElement,wire } from 'lwc';
 import getVehicles from '@salesforce/apex/VehicleLoanController.getVehicles';
 import { ShowToastEvent } from 'lightning/platformShowToastEvent';
+import verifyKYC from '@salesforce/apex/KYCVerificationController.verifyKYC';
 export default class VehicleLoanApplication extends LightningElement {
     vehicles;
     productName;
@@ -10,7 +11,9 @@ export default class VehicleLoanApplication extends LightningElement {
     loanAmount;
     tenure;
     masterId;
-
+    firstName
+    lastName;
+    dob;
     aadhaar;
     pan;
     employmentType;
@@ -78,7 +81,7 @@ export default class VehicleLoanApplication extends LightningElement {
             return;
         }
         const event = new ShowToastEvent({
-            title: 'Congratulations 🎉',
+            title: 'Congratulations',
             message: 'You are eligible for Preapproval',
             variant: 'success',   
             mode: 'dismissable'   
@@ -90,6 +93,7 @@ export default class VehicleLoanApplication extends LightningElement {
     }
     handleDOBChange(event) {
         const selectedDate = new Date(event.target.value);
+        this.dob = event.target.value;
         const today = new Date();
 
         if (selectedDate > today) {
@@ -116,6 +120,7 @@ export default class VehicleLoanApplication extends LightningElement {
     }
     handleAadhaarChange(event) {
         this.aadhaar = event.target.value;
+         
     }
     handlePanChange(event) {
         this.pan = event.target.value.toUpperCase();
@@ -138,6 +143,54 @@ export default class VehicleLoanApplication extends LightningElement {
     this.showCustomerForm = false;
     this.showKYCForm = true;
 }
+    handleName(){
+        this.firstName = this.template.querySelector('lightning-input-name').firstName;
+        this.lastName = this.template.querySelector('lightning-input-name').lastName;
+    }
+    handleSubmit() {
+        console.log('Submit clicked');
+        console.log(formattedAadhaar, this.pan, this.firstName, this.lastName, this.dob);
+    verifyKYC({
+        aadhaar: this.aadhaar,
+        pan: this.pan,
+        firstName: this.firstName,
+        lastName: this.lastName,
+        dob: this.dob
+    })
+    .then(result => {
+
+        if(result === 'AADHAAR_INACTIVE'){
+            this.showToast('Error', 'Aadhaar is inactive', 'error', 'sticky');
+        }
+        else if(result === 'AADHAAR_NOT_FOUND'){
+            this.showToast('Error', 'No record exists for the provided Aadhaar number', 'error', 'sticky');
+        }
+        else if(result === 'PAN_NOT_FOUND'){
+            this.showToast('Error', 'No record exists for the provided PAN number', 'error', 'sticky');
+        }
+        else if(result === 'MISMATCH'){
+            this.showToast('Error', 'PAN found but details do not match Aadhaar record', 'error', 'sticky');
+        }
+        else if(result === 'SUCCESS'){
+            this.showToast('Success', 'Team will contact you shortly', 'success');
+            this.showFinalForm = true;
+        }
+
+    })
+    .catch(error => {
+        this.showToast('Error', 'Something went wrong', 'error', 'sticky');
+    });
+}
+    showToast(title, message, variant, mode = 'dismissable') {
+        this.dispatchEvent(
+            new ShowToastEvent({
+                title,
+                message,
+                variant,
+                mode
+            })
+        );
+    }
     
     
 }

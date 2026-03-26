@@ -35,14 +35,6 @@
             </lightning-button>
         </div>
     </template>
-
-    <template if:true={showPopup}>
-        <div class="popup">
-            <div class="popup-content">
-                Congratulations! You are eligible for Preapproval
-            </div>
-        </div>
-    </template>
     <template if:true={showCustomerForm}>
         <lightning-card title="Customer Details">
 
@@ -53,6 +45,7 @@
                     first-name-label="First Name"
                     last-name-label="Last Name"
                     options={salutationOptions}
+                    onchange={handleName}
                     required></lightning-input-name>
             
                 <lightning-input label="Father Name" required></lightning-input>
@@ -163,4 +156,19 @@
 
         </lightning-card>
     </template>
+    <template if:true={showFinalForm}>
+    <lightning-card title="Loan Details">
+
+        <lightning-input label="Product Name" value={productName} disabled></lightning-input>
+        <lightning-input label="Brand" value={make} disabled></lightning-input>
+        <lightning-input label="Engine" value={engine} disabled></lightning-input>
+        <lightning-input label="Price" value={price} disabled></lightning-input>
+        <lightning-input label="Loan Amount" value={loanAmount} disabled></lightning-input>
+
+        <lightning-input label="Principal"></lightning-input> </lightning-input>
+        <lightning-input label="Rate of Interest (%)" ></lightning-input>
+        <lightning-input label="Down Payment"></lightning-input>
+
+    </lightning-card>
+</template>
 </template>
