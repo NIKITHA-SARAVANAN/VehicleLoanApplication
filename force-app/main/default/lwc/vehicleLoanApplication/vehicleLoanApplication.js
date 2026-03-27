@@ -31,6 +31,7 @@ export default class VehicleLoanApplication extends LightningElement {
     showCustomerForm = false;
     showKYCForm = false;
     showFinalForm = false;
+    showBRE = false;
     interestRate = 10;
     emi;
     downPayment;
@@ -38,6 +39,8 @@ export default class VehicleLoanApplication extends LightningElement {
     totalAmount;
     emiTable = [];
     showEMITable = false;
+    creditData;
+
     columns = [
         { label: 'Month', fieldName: 'month', type: 'number' },
         { label: 'Principal', fieldName: 'principal', type: 'number' },
@@ -205,27 +208,40 @@ export default class VehicleLoanApplication extends LightningElement {
     })
     .then(result => {
 
-        if(result === 'AADHAAR_INACTIVE'){
+        if(result.status === 'AADHAAR_INACTIVE'){
             this.showToast('Error', 'Aadhaar is inactive', 'error', 'sticky');
         }
-        else if(result === 'AADHAAR_NOT_FOUND'){
+        else if(result.status === 'AADHAAR_NOT_FOUND'){
             this.showToast('Error', 'No record exists for the provided Aadhaar number', 'error', 'sticky');
         }
-        else if(result === 'PAN_NOT_FOUND'){
+        else if(result.status === 'PAN_NOT_FOUND'){
             this.showToast('Error', 'No record exists for the provided PAN number', 'error', 'sticky');
         }
-        else if(result === 'MISMATCH'){
+        else if(result.status === 'PAN_INACTIVE'){
+            this.showToast('Error', 'PAN is inactive', 'error', 'sticky');
+        }
+        else if(result.status === 'MISMATCH'){
             this.showToast('Error', 'The provided name and date of birth do not match the records associated with the given PAN and Aadhaar. Please verify your details and try again.', 'error', 'sticky');
         }
-        else if(result === 'SUCCESS'){
+        else if(result.status === 'SYSTEM_ERROR'){   
+        this.showToast('Error', 'System error occurred. Please try again.', 'error', 'sticky');
+        }
+        else if(result.status === 'SUCCESS'){
             this.showToast('Success', 'Team will contact you shortly', 'success');
+            this.creditData = result.data;
+            console.log('Credit Data:', this.creditData);
             this.showFinalForm = true;
         }
 
     })
-    .catch(error => {
-        this.showToast('Error', 'Something went wrong', 'error', 'sticky');
-    });
+   .catch(error => {
+    this.showToast(
+        'Error',
+        error.body?.message || error.message,
+        'error',
+        'sticky'
+    );
+});
 }
     showToast(title, message, variant, mode = 'dismissable') {
         this.dispatchEvent(
@@ -273,11 +289,13 @@ export default class VehicleLoanApplication extends LightningElement {
             emi: parseFloat(this.emi)
         })
          .then(result => {
-        // Show a toast after BR check (regardless of success or just confirmation)
+        // Show a toast after BRE check (regardless of success or just confirmation)
+        this.showFinalForm = false;
+        this.showBRE = true;
         this.dispatchEvent(
             new ShowToastEvent({
-                title: 'Under BR Check',
-                message: 'The application is being processed under BR check.',
+                title: 'Under BRE Check',
+                message: 'The application is being processed under BRE check.',
                 variant: 'info',
                 mode: 'dismissable'
             })

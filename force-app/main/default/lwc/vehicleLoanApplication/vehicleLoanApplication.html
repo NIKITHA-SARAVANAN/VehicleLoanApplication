@@ -20,6 +20,7 @@
         </lightning-carousel>
     </div>
 </div>
+
      <template if:true={showForm}>
         <lightning-input label="Product Name" value={productName} disabled></lightning-input>
         <lightning-input label="Brand (Make)" value={make} disabled></lightning-input>
@@ -27,7 +28,6 @@
         <lightning-input label="Price" value={price} disabled></lightning-input>
         <div class="slds-p-around_medium">
  
-            <!-- Loan Amount Slider -->
             <p><b>Loan Amount:</b> ₹{loanAmount}</p>
             <lightning-slider
                 label="Loan Amount"
@@ -40,7 +40,6 @@
                 onchange={handleLoanSlider}>
             </lightning-slider>
  
-            <!-- Tenure Slider -->
             <p class="slds-m-top_medium"><b>Tenure:</b> {tenure} Months</p>
             <lightning-slider
                 label="Tenure"
@@ -86,6 +85,7 @@
             </lightning-datatable>
         </lightning-card>
     </template>
+
     <template if:true={showCustomerForm}>
         <lightning-card title="Customer Details">
 
@@ -207,6 +207,8 @@
 
         </lightning-card>
     </template>
+   
+
     <template if:true={showFinalForm}>
     <lightning-card title="Loan Details">
         <lightning-input label="Product Name" value={productName} disabled></lightning-input>
@@ -228,4 +230,11 @@
 
     </lightning-card>
 </template>
+    <template if:true={showBRE}>
+        <c-loan-bre-engine
+            credit-data={creditData}
+            salary={salary}
+            employment-type={employmentType}>
+        </c-loan-bre-engine>
+    </template>
 </template>

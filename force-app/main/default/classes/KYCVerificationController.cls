@@ -1,12 +1,9 @@
 public with sharing class KYCVerificationController {
     public KYCVerificationController() {
-
     }
     @AuraEnabled
-    public static String verifyKYC( String aadhaar, String pan, String firstName, String lastName, String dob) {
-
+    public static Map<String, Object> verifyKYC( String aadhaar, String pan, String firstName, String lastName, String dob) {
         try {
-
             Http http = new Http();
             HttpRequest req = new HttpRequest();
             req.setEndpoint('callout:Expernal_API_NC/services/apexrest/mock/aadhar/verify?aadharNumber=' + aadhaar);
@@ -20,13 +17,19 @@ public with sharing class KYCVerificationController {
 
             if (statusCode == 404) {
                 System.debug('Full Response: ' + res.getBody());
-                return 'AADHAAR_NOT_FOUND';
+                return new Map<String, Object>{
+            'status' => 'AADHAAR_NOT_FOUND'
+        };
             } 
             else if (statusCode == 403) {
-                return 'AADHAAR_INACTIVE';
+                return new Map<String, Object>{
+            'status' => 'AADHAAR_INACTIVE'
+        };
             } 
             else if (statusCode != 200) {
-                return 'AADHAAR_ERROR';
+                return new Map<String, Object>{
+            'status' => 'AADHAAR_ERROR'
+        };
             }
             Map<String, Object> result = (Map<String, Object>) JSON.deserializeUntyped(res.getBody());
             
@@ -54,30 +57,39 @@ public with sharing class KYCVerificationController {
             Integer panStatus = panRes.getstatusCode();
             system.debug(panRes.getBody());
             if (panStatus == 404) {
-                return 'PAN_NOT_FOUND';
-            } 
+            return new Map<String, Object>{ 'status' => 'PAN_NOT_FOUND' };
+        } 
             else if (panStatus == 403) {
-                return 'PAN_INACTIVE';
+                return new Map<String, Object>{
+            'status' => 'PAN_INACTIVE'
+        };
             } 
+             else if (panStatus == 422) {
+            return new Map<String, Object>{ 'status' => 'MISMATCH' };
+        }
             else if (panStatus != 200) {
-                return 'PAN_ERROR';
+                return new Map<String, Object>{
+            'status' => 'PAN_ERROR'
+        };
             }
+           
+
             Map<String, Object> panResult = (Map<String, Object>) JSON.deserializeUntyped(panRes.getBody());
             Map<String, Object> panData = (Map<String, Object>) panResult.get('data');
             String pFirstName = ((String) panData.get('firstName')).trim().toLowerCase();
             String pLastName  = ((String) panData.get('lastName')).trim().toLowerCase();
             String pDob       = ((String) panData.get('dob')).trim();
-            // if (firstName != aFirstName || lastName != aLastName || dob != aDob) {
-            //     return 'MISMATCH';
-            // }
-            if(panStatus==422){
-                return 'MISMATCH';
-            }
-            return 'SUCCESS';
+            
+            return new Map<String, Object>{
+             'status' => 'SUCCESS',
+             'data' => panResult   
+};
 
         } catch (Exception e) {
             System.debug('KYC Verification Error: ' + e.getMessage());
-            return 'SYSTEM_ERROR';
+            return new Map<String, Object>{
+                'status' => 'SYSTEM_ERROR'
+            };
         }
     }
 }
