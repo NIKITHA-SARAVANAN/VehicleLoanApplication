@@ -25,8 +25,42 @@
         <lightning-input label="Brand (Make)" value={make} disabled></lightning-input>
         <lightning-input label="Engine (CC)" value={engine} disabled></lightning-input>
         <lightning-input label="Price" value={price} disabled></lightning-input>
-        <lightning-input label="Loan Amount" type="number" onchange={handleLoan} required></lightning-input>
-        <lightning-input label="Tenure" type="number" onchange={handleTenure} required></lightning-input>
+        <div class="slds-p-around_medium">
+ 
+            <!-- Loan Amount Slider -->
+            <p><b>Loan Amount:</b> ₹{loanAmount}</p>
+            <lightning-slider
+                label="Loan Amount"
+                value={loanAmount}
+                formatter="currency"
+                currency="INR"
+                min="10000"
+                max={price}
+                step="1000"
+                onchange={handleLoanSlider}>
+            </lightning-slider>
+ 
+            <!-- Tenure Slider -->
+            <p class="slds-m-top_medium"><b>Tenure:</b> {tenure} Months</p>
+            <lightning-slider
+                label="Tenure"
+                value={tenure}
+                min="6"
+                max="60"
+                step="1"
+                onchange={handleTenureSlider}>
+            </lightning-slider>
+ 
+        </div>
+        <template if:true={emi}>
+            <div class="slds-box slds-theme_shade slds-m-top_medium">
+                <p><b>Interest Rate:</b> {interestRate}%</p>
+                <p><b>Monthly EMI:</b> ₹{emi}</p>
+                <p><b>Total Interest:</b> ₹{totalInterest}</p>
+                <p><b>Total Amount:</b> ₹{totalAmount}</p>
+            </div>
+        </template>
+ 
         <div class="slds-m-top_medium slds-align_absolute-center">
             <lightning-button 
                 label="Next" 
@@ -34,6 +68,23 @@
                 onclick={handleNext}>
             </lightning-button>
         </div>
+    </template>
+      <template if:true={showEMITable}>
+        <lightning-card title="EMI Details">
+            <div class="slds-p-around_medium">
+                <p><b>Interest Rate:</b> {interestRate}%</p>
+                <p><b>Monthly EMI:</b> ₹{emi}</p>
+                <p><b>Total Interest:</b> ₹{totalInterest}</p>
+                <p><b>Total Amount:</b> ₹{totalAmount}</p>
+            </div>
+ 
+            <lightning-datatable
+                key-field="month"
+                data={emiTable}
+                columns={columns}
+                hide-checkbox-column>
+            </lightning-datatable>
+        </lightning-card>
     </template>
     <template if:true={showCustomerForm}>
         <lightning-card title="Customer Details">
@@ -158,16 +209,22 @@
     </template>
     <template if:true={showFinalForm}>
     <lightning-card title="Loan Details">
-
         <lightning-input label="Product Name" value={productName} disabled></lightning-input>
         <lightning-input label="Brand" value={make} disabled></lightning-input>
         <lightning-input label="Engine" value={engine} disabled></lightning-input>
         <lightning-input label="Price" value={price} disabled></lightning-input>
         <lightning-input label="Loan Amount" value={loanAmount} disabled></lightning-input>
-
-        <lightning-input label="Principal"></lightning-input> </lightning-input>
-        <lightning-input label="Rate of Interest (%)" ></lightning-input>
-        <lightning-input label="Down Payment"></lightning-input>
+        <lightning-input label="Rate of Interest (%)"  value={interestRate} disabled></lightning-input>
+        <lightning-input label="Monthly EMI"  value={emi} disabled></lightning-input>
+        <lightning-input label="Total Amount"  value={totalAmount} disabled></lightning-input>
+        <lightning-input label="Down Payment" onchange={handleDownPayment} type="Number" formatter="currency"></lightning-input>
+        <div class="slds-m-top_medium slds-align_absolute-center">
+            <lightning-button 
+                label="Next" 
+                variant="brand" 
+                onclick={handleFinalSubmit}>
+            </lightning-button>
+        </div>
 
     </lightning-card>
 </template>

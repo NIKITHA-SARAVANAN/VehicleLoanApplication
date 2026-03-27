@@ -14,8 +14,12 @@ public with sharing class KYCVerificationController {
             req.setHeader('Content-Type', 'application/json');
 
             HttpResponse res = http.send(req);
+            System.debug('Response Body: ' + res.getBody());
             Integer statusCode = res.getStatusCode();
+            
+
             if (statusCode == 404) {
+                System.debug('Full Response: ' + res.getBody());
                 return 'AADHAAR_NOT_FOUND';
             } 
             else if (statusCode == 403) {
@@ -25,11 +29,13 @@ public with sharing class KYCVerificationController {
                 return 'AADHAAR_ERROR';
             }
             Map<String, Object> result = (Map<String, Object>) JSON.deserializeUntyped(res.getBody());
+            
             Map<String, Object> data = (Map<String, Object>) result.get('data');
 
             String aFirstName = ((String) data.get('firstName')).trim().toLowerCase();
             String aLastName  = ((String) data.get('lastName')).trim().toLowerCase();
             String aDob       = ((String) data.get('dob')).trim();
+
             HttpRequest panReq = new HttpRequest();
             panReq.setEndpoint('callout:Expernal_API_NC/services/apexrest/mock/pan/verify');
             panReq.setMethod('POST');
@@ -45,7 +51,8 @@ public with sharing class KYCVerificationController {
             panReq.setBody(JSON.serialize(body));
 
             HttpResponse panRes = http.send(panReq);
-            Integer panStatus = panRes.getStatusCode();
+            Integer panStatus = panRes.getstatusCode();
+            system.debug(panRes.getBody());
             if (panStatus == 404) {
                 return 'PAN_NOT_FOUND';
             } 
@@ -56,11 +63,14 @@ public with sharing class KYCVerificationController {
                 return 'PAN_ERROR';
             }
             Map<String, Object> panResult = (Map<String, Object>) JSON.deserializeUntyped(panRes.getBody());
-
-            String pFirstName = ((String) panResult.get('firstName')).trim().toLowerCase();
-            String pLastName  = ((String) panResult.get('lastName')).trim().toLowerCase();
-            String pDob       = ((String) panResult.get('dob')).trim();
-            if (aFirstName != pFirstName || aLastName != pLastName || aDob != pDob) {
+            Map<String, Object> panData = (Map<String, Object>) panResult.get('data');
+            String pFirstName = ((String) panData.get('firstName')).trim().toLowerCase();
+            String pLastName  = ((String) panData.get('lastName')).trim().toLowerCase();
+            String pDob       = ((String) panData.get('dob')).trim();
+            // if (firstName != aFirstName || lastName != aLastName || dob != aDob) {
+            //     return 'MISMATCH';
+            // }
+            if(panStatus==422){
                 return 'MISMATCH';
             }
             return 'SUCCESS';
