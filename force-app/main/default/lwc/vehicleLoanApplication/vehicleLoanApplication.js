@@ -2,7 +2,8 @@ import { LightningElement,wire } from 'lwc';
 import getVehicles from '@salesforce/apex/VehicleLoanController.getVehicles';
 import { ShowToastEvent } from 'lightning/platformShowToastEvent';
 import verifyKYC from '@salesforce/apex/KYCVerificationController.verifyKYC';
-import createLeadAccountOpportunity from '@salesforce/apex/ObjectCreator.createLeadAccountOpportunity';
+import createOpportunity from '@salesforce/apex/OpportunityController.createOpportunity';
+import createOrUpdateCustomer from '@salesforce/apex/LeadAccountController.createOrUpdateCustomer';
 export default class VehicleLoanApplication extends LightningElement {
     vehicles;
     productName;
@@ -24,6 +25,13 @@ export default class VehicleLoanApplication extends LightningElement {
     Phone;
     email;
     companyAddress;
+    address = {
+    street: '',
+    city: '',
+    state: '',
+    country: '',
+    postalCode: ''
+    };
     employmentType = '';
     isSelfEmployed = false;
     showForm = false;
@@ -41,7 +49,7 @@ export default class VehicleLoanApplication extends LightningElement {
     showEMITable = false;
     creditData;
     opportunityId;
-
+    accountId;
     columns = [
         { label: 'Month', fieldName: 'month', type: 'number' },
         { label: 'Principal', fieldName: 'principal', type: 'number' },
@@ -167,6 +175,20 @@ export default class VehicleLoanApplication extends LightningElement {
 
         event.target.reportValidity();
     }
+    handleEmailChange(event) {
+        this.email = event.target.value;
+    }
+    handleAddressChange(event) {
+    this.address = {
+        street: event.detail.street,
+        city: event.detail.city,
+        state: event.detail.province, // province = state
+        country: event.detail.country,
+        postalCode: event.detail.postalCode
+    };
+
+    console.log('Address:', JSON.stringify(this.address));
+    }
     handleAadhaarChange(event) {
         this.aadhaar = event.target.value;
          
@@ -230,6 +252,32 @@ export default class VehicleLoanApplication extends LightningElement {
         else if(result.status === 'SUCCESS'){
             this.showToast('Success', 'Team will contact you shortly', 'success');
             this.creditData = result.data;
+             createOrUpdateCustomer({
+                salutation: this.salutation,
+                firstName: this.firstName,
+                lastName: this.lastName,
+                phone: this.Phone,
+                email: this.email,
+                aadhaar: this.aadhaar,
+                pan: this.pan,
+                employmentType: this.employmentType,
+                salary: parseFloat(this.salary),
+                street: this.address.street,
+                city: this.address.city,
+                state: this.address.state,
+                country: this.address.country,
+                postalCode: this.address.postalCode
+            })
+            .then(accountId => {
+                this.accountId = accountId;
+                console.log('Account Id:', accountId);
+
+                this.showFinalForm = true; // move to next step
+            }) 
+            .catch(error => {
+                this.showToast('Error', error.body?.message, 'error');
+            });
+
             console.log('Credit Data:', this.creditData);
             this.showFinalForm = true;
         }
@@ -258,15 +306,8 @@ export default class VehicleLoanApplication extends LightningElement {
         this.downPayment = event.target.value;
     }
     handleFinalSubmit() {
-        createLeadAccountOpportunity({
-            salutation: this.salutation,
-            firstName: this.firstName,
-            lastName: this.lastName,
-            phone: this.Phone,
-            aadhaar: this.aadhaar,
-            pan: this.pan,
-            employmentType: this.employmentType,
-            salary: parseFloat(this.salary),
+        createOpportunity({
+            accountId: this.accountId,
             vehicleName: this.productName,
             price: parseFloat(this.price),
             downPayment: parseFloat(this.downPayment),
