@@ -1,0 +1,19 @@
+{
+  "folders": [
+    {
+      "path": "c:/salesforce/Digital Lending/Two Wheeler Loan Journey/Two wheeler Lending system"
+    }
+  ],
+  "settings": {
+    "eslint.workingDirectories": [
+      "c:/salesforce/Digital Lending/Two Wheeler Loan Journey/Two wheeler Lending system"
+    ],
+    "eslint.validate": [
+      "javascript",
+      "typescript"
+    ],
+    "eslint.options": {
+      "overrideConfigFile": "c:\\salesforce\\Digital Lending\\Two Wheeler Loan Journey\\Two wheeler Lending system\\.eslintrc.json"
+    }
+  }
+}

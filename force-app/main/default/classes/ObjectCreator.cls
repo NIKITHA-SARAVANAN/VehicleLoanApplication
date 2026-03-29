@@ -1,6 +1,13 @@
 public with sharing class ObjectCreator {
+
+     public class ResponseWrapper {
+        @AuraEnabled public Boolean success;
+        @AuraEnabled public String message;
+        @AuraEnabled public Id recordId;
+    }
+
     @AuraEnabled
-    public static String createLeadAccountOpportunity(
+    public static ResponseWrapper createLeadAccountOpportunity(
         String salutation,
         String firstName,
         String lastName,
@@ -16,6 +23,7 @@ public with sharing class ObjectCreator {
         Decimal interestRate,
         Decimal emi
     ) {
+        ResponseWrapper res = new ResponseWrapper();
         try {
             //  Create Lead
             Lead newLead = new Lead(
@@ -59,10 +67,16 @@ public with sharing class ObjectCreator {
                 Interest_Rate__c = interestRate
             );
             insert opp;
+            res.success = true;
+            res.recordId = opp.Id;   
+            res.message = 'Created';
 
-            return 'Success';
+
+            
         } catch (Exception e) {
-            return 'Error: ' + e.getMessage();
+            res.success = false;
+            res.message = e.getMessage();
         }
+        return res;
     }
 }

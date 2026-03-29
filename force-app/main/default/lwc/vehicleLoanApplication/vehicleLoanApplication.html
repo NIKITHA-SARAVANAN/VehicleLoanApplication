@@ -1,33 +1,32 @@
 <template>
-   <div class="slds-grid slds-grid_align-center slds-m-top_medium">   
-    <div class="slds-box slds-size_1-of-1 slds-medium-size_2-of-3 slds-large-size_2-of-3">        
-        <lightning-carousel>
-            <template for:each={vehicles} for:item="item">
-                <lightning-carousel-image
-                    key={item.Id}
-                    src={item.Vehicle_Image_URL__c}
-                    header={item.Name}
-                    description={item.Make__c}
-                    alternative-text={item.Name}
-                    data-id={item.Id}
-                    data-name={item.Name}
-                    data-make={item.Make__c}
-                    data-engine={item.Engine_CC__c}
-                    data-price={item.Price__c}
-                    onclick={handleSelect}>
-                </lightning-carousel-image>
-            </template>
-        </lightning-carousel>
+    <div class="slds-grid slds-grid_align-center slds-m-top_medium">   
+        <div class="slds-box slds-size_1-of-1 slds-medium-size_2-of-3 slds-large-size_2-of-3">        
+            <lightning-carousel>
+                <template for:each={vehicles} for:item="item">
+                    <lightning-carousel-image
+                        key={item.Id}
+                        src={item.Vehicle_Image_URL__c}
+                        header={item.Name}
+                        description={item.Make__c}
+                        alternative-text={item.Name}
+                        data-id={item.Id}
+                        data-name={item.Name}
+                        data-make={item.Make__c}
+                        data-engine={item.Engine_CC__c}
+                        data-price={item.Price__c}
+                        onclick={handleSelect}>
+                    </lightning-carousel-image>
+                </template>
+            </lightning-carousel>
+        </div>
     </div>
-</div>
 
-     <template if:true={showForm}>
+    <template if:true={showForm}>
         <lightning-input label="Product Name" value={productName} disabled></lightning-input>
         <lightning-input label="Brand (Make)" value={make} disabled></lightning-input>
         <lightning-input label="Engine (CC)" value={engine} disabled></lightning-input>
         <lightning-input label="Price" value={price} disabled></lightning-input>
         <div class="slds-p-around_medium">
- 
             <p><b>Loan Amount:</b> ₹{loanAmount}</p>
             <lightning-slider
                 label="Loan Amount"
@@ -68,7 +67,7 @@
             </lightning-button>
         </div>
     </template>
-      <template if:true={showEMITable}>
+    <template if:true={showEMITable}>
         <lightning-card title="EMI Details">
             <div class="slds-p-around_medium">
                 <p><b>Interest Rate:</b> {interestRate}%</p>
@@ -126,11 +125,14 @@
                     field-level-help="Please enter your complete residential address including street, city, state, and postal code for loan processing." >
                 </lightning-input-address>
             </div>
+
+            <div class="slds-m-top_medium slds-align_absolute-center">
                 <lightning-button 
                     variant="brand" 
                     label="Next"
                     onclick={handleNextButton}>
                 </lightning-button>
+            </div>    
             
 
         </lightning-card>
@@ -234,7 +236,8 @@
         <c-loan-bre-engine
             credit-data={creditData}
             salary={salary}
-            employment-type={employmentType}>
+            employment-type={employmentType}
+            opportunity-id={opportunityId}>
         </c-loan-bre-engine>
     </template>
 </template>

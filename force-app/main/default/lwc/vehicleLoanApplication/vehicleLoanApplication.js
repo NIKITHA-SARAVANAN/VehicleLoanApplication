@@ -40,6 +40,7 @@ export default class VehicleLoanApplication extends LightningElement {
     emiTable = [];
     showEMITable = false;
     creditData;
+    opportunityId;
 
     columns = [
         { label: 'Month', fieldName: 'month', type: 'number' },
@@ -53,8 +54,8 @@ export default class VehicleLoanApplication extends LightningElement {
         { label: 'Mrs.', value: 'Mrs.' },
     ];
     employmentOptions = [
-        { label: 'Salaried', value: 'salaried' },
-        { label: 'Self Employed', value: 'self_employed' }
+        { label: 'Salaried', value: 'Salaried' },
+        { label: 'Self Employed', value: 'Self Employed' }
     ];
     @wire(getVehicles)
     wiredVehicles({ data, error }) {
@@ -257,21 +258,6 @@ export default class VehicleLoanApplication extends LightningElement {
         this.downPayment = event.target.value;
     }
     handleFinalSubmit() {
-         console.log('Lead/Opportunity Parameters:');
-    console.log('salutation:', this.salutation);
-    console.log('firstName:', this.firstName);
-    console.log('lastName:', this.lastName);
-    console.log('phone:', this.Phone);
-    console.log('aadhaar:', this.aadhaar);
-    console.log('pan:', this.pan);
-    console.log('employmentType:', this.employmentType);
-    console.log('salary:', parseFloat(this.salary));
-    console.log('vehicleName:', this.productName);
-    console.log('price:', parseFloat(this.price));
-    console.log('downPayment:', parseFloat(this.downPayment));
-    console.log('tenure:', this.tenure);
-    console.log('interestRate:', parseFloat(this.interestRate));
-    console.log('emi:', parseFloat(this.emi));
         createLeadAccountOpportunity({
             salutation: this.salutation,
             firstName: this.firstName,
@@ -290,16 +276,34 @@ export default class VehicleLoanApplication extends LightningElement {
         })
          .then(result => {
         // Show a toast after BRE check (regardless of success or just confirmation)
-        this.showFinalForm = false;
-        this.showBRE = true;
-        this.dispatchEvent(
-            new ShowToastEvent({
-                title: 'Under BRE Check',
-                message: 'The application is being processed under BRE check.',
-                variant: 'info',
-                mode: 'dismissable'
-            })
-        );
+        // this.showFinalForm = false;
+         console.log('FULL RESULT:', result);
+          if(result && result.recordId) {  // assuming Apex returns Opportunity record
+            this.opportunityId = result.recordId;
+            console.log('Opp Id:', this.opportunityId);
+
+            // Show BRE child component
+            this.showBRE = true;
+
+            this.dispatchEvent(
+                new ShowToastEvent({
+                    title: 'Under BRE Check',
+                    message: 'The application is being processed under BRE check.',
+                    variant: 'info',
+                    mode: 'dismissable'
+                })
+            );
+        } else {
+            // Handle case where Apex does not return Id
+            this.dispatchEvent(
+                new ShowToastEvent({
+                    title: 'Error',
+                    message: result.message || 'Opportunity could not be created.',
+                    variant: 'error',
+                    mode: 'dismissable'
+                })
+            );
+        }
     })
     .catch(error => {
         this.dispatchEvent(
