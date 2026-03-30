@@ -32,7 +32,7 @@ public with sharing class OpportunityController {
             Opportunity opp = new Opportunity(
                 Name = vehicleName + ' Loan',
                 AccountId = accountId ,
-                StageName = 'Prospecting',
+                StageName = 'KYC Verification',
                 CloseDate = Date.today().addMonths(1),
                 Vehicle_Name__c =  product.Id,
                 Price__c = price,

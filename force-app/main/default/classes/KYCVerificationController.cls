@@ -9,36 +9,27 @@ public with sharing class KYCVerificationController {
             req.setEndpoint('callout:Expernal_API_NC/services/apexrest/mock/aadhar/verify?aadharNumber=' + aadhaar);
             req.setMethod('GET');
             req.setHeader('Content-Type', 'application/json');
-
             HttpResponse res = http.send(req);
             System.debug('Response Body: ' + res.getBody());
             Integer statusCode = res.getStatusCode();
-            
-
             if (statusCode == 404) {
                 System.debug('Full Response: ' + res.getBody());
                 return new Map<String, Object>{
-            'status' => 'AADHAAR_NOT_FOUND'
-        };
+                    'status' => 'AADHAAR_NOT_FOUND'
+                };
             } 
             else if (statusCode == 403) {
                 return new Map<String, Object>{
-            'status' => 'AADHAAR_INACTIVE'
-        };
+                    'status' => 'AADHAAR_INACTIVE'
+                };
             } 
             else if (statusCode != 200) {
                 return new Map<String, Object>{
-            'status' => 'AADHAAR_ERROR'
-        };
+                     'status' => 'AADHAAR_ERROR'
+                };
             }
-            Map<String, Object> result = (Map<String, Object>) JSON.deserializeUntyped(res.getBody());
-            
+            Map<String, Object> result = (Map<String, Object>) JSON.deserializeUntyped(res.getBody());            
             Map<String, Object> data = (Map<String, Object>) result.get('data');
-
-            String aFirstName = ((String) data.get('firstName')).trim().toLowerCase();
-            String aLastName  = ((String) data.get('lastName')).trim().toLowerCase();
-            String aDob       = ((String) data.get('dob')).trim();
-
             HttpRequest panReq = new HttpRequest();
             panReq.setEndpoint('callout:Expernal_API_NC/services/apexrest/mock/pan/verify');
             panReq.setMethod('POST');
@@ -50,40 +41,35 @@ public with sharing class KYCVerificationController {
                 'dob'       => dob
             };
             System.debug('PAN Request Body: ' + JSON.serialize(body));
-
             panReq.setBody(JSON.serialize(body));
-
             HttpResponse panRes = http.send(panReq);
             Integer panStatus = panRes.getstatusCode();
             system.debug(panRes.getBody());
             if (panStatus == 404) {
-            return new Map<String, Object>{ 'status' => 'PAN_NOT_FOUND' };
-        } 
+                return new Map<String, Object>{ 'status' => 'PAN_NOT_FOUND' };
+            } 
             else if (panStatus == 403) {
                 return new Map<String, Object>{
-            'status' => 'PAN_INACTIVE'
-        };
+                    'status' => 'PAN_INACTIVE'
+                };
             } 
-             else if (panStatus == 422) {
-            return new Map<String, Object>{ 'status' => 'MISMATCH' };
-        }
+            else if (panStatus == 422) {
+                return new Map<String, Object>{ 'status' => 'MISMATCH' };
+            }
             else if (panStatus != 200) {
                 return new Map<String, Object>{
-            'status' => 'PAN_ERROR'
-        };
+                    'status' => 'PAN_ERROR'
+                };
             }
            
 
             Map<String, Object> panResult = (Map<String, Object>) JSON.deserializeUntyped(panRes.getBody());
             Map<String, Object> panData = (Map<String, Object>) panResult.get('data');
-            String pFirstName = ((String) panData.get('firstName')).trim().toLowerCase();
-            String pLastName  = ((String) panData.get('lastName')).trim().toLowerCase();
-            String pDob       = ((String) panData.get('dob')).trim();
             
             return new Map<String, Object>{
              'status' => 'SUCCESS',
              'data' => panResult   
-};
+            };
 
         } catch (Exception e) {
             System.debug('KYC Verification Error: ' + e.getMessage());

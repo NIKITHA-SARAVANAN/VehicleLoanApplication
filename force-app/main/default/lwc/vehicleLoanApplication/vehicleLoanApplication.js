@@ -51,10 +51,10 @@ export default class VehicleLoanApplication extends LightningElement {
     opportunityId;
     accountId;
     columns = [
-        { label: 'Month', fieldName: 'month', type: 'number' },
-        { label: 'Principal', fieldName: 'principal', type: 'number' },
-        { label: 'Interest', fieldName: 'interest', type: 'number' },
-        { label: 'Balance', fieldName: 'balance', type: 'number' }
+        { label: 'Month', fieldName: 'month', type: 'number' ,initialWidth: 80},
+        { label: 'Principal', fieldName: 'principal', type: 'number',initialWidth: 120  },
+        { label: 'Interest', fieldName: 'interest', type: 'number' ,initialWidth: 120},
+        { label: 'Balance', fieldName: 'balance', type: 'number' ,initialWidth: 140}
     ];
      salutationsList = [
         { label: 'Mr.', value: 'Mr.' },
@@ -99,9 +99,7 @@ export default class VehicleLoanApplication extends LightningElement {
         const annualRate = this.interestRate;
         const R = annualRate / 12 / 100;
         const N = parseInt(this.tenure);
- 
         const emi = (P * R * Math.pow(1 + R, N)) / (Math.pow(1 + R, N) - 1);
- 
         this.emi = emi.toFixed(2);
         this.totalAmount = (emi * N).toFixed(2);
         this.totalInterest = (this.totalAmount - P).toFixed(2);

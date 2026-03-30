@@ -74,7 +74,7 @@ public with sharing class BreEngineController {
 
             if(ageOk && salaryOk && creditOk && dpdOk && foirOk && empOk) {
                 finalDecision = rule.Decision__c;
-                break; // stop at first matching rule
+                break; 
             }
         }
 
@@ -83,7 +83,8 @@ public with sharing class BreEngineController {
             FOIR__c = foir,
             Credit_score__c = creditScore,
             BRE_Decision__c = finalDecision,
-            DPD__c = dpd
+            DPD__c = dpd,
+            StageName = 'BRE Evaluation'
         );
         update opp;
 
